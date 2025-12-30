@@ -22,8 +22,8 @@ await cast.evaluate(div => {
 await cast.screenshot({ path: `${directory}/cast.png` });
 await cast.dispose();
 const title = await page.$eval('span.hero__primary-text', el => el.innerText);
-let year = await page.$eval('ul.sc-16bda17f-3 > li', el => el.innerText); // Sometimes 'TV Movie' is returned. In this case, get the second <li>.
-if (year.length !== 4) year = await page.$eval('ul.sc-16bda17f-3 > li:nth-child(2)', el => el.innerText);
+let year = await page.$eval('ul.sc-b41e510f-3 > li', el => el.innerText); // Sometimes 'TV Movie' is returned. In this case, get the second <li>.
+if (year.length !== 4) year = await page.$eval('ul.sc-b41e510f-3 > li:nth-child(2)', el => el.innerText);
 const plot = await page.$eval('span.sc-bf30a0e-2', el => el.innerText);
 const directors = await page.$$eval('div.sc-af040695-3 > ul > li:nth-child(1) > div > ul > li', elements => elements.map(el => el.innerText));
 const stars = await page.$$eval('div.sc-af040695-3 > ul > li:nth-child(3) > div > ul > li', elements => elements.map(el => el.innerText));
