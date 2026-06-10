@@ -2,8 +2,8 @@
 import fs from 'fs';
 import { Readable } from 'stream';
 import puppeteer from 'puppeteer-core';
-const date = '2025-12-31';
-const tt = 'tt13622970';
+const date = '2026-06-07';
+const tt = 'tt30144839';
 const directory = `assets/${date} ${tt}`;
 await fs.promises.mkdir(directory, { recursive: true });
 const browser = await puppeteer.launch({
@@ -24,7 +24,7 @@ await cast.dispose();
 const title = await page.$eval('span.hero__primary-text', el => el.innerText);
 let year = await page.$eval('ul.sc-b41e510f-3 > li', el => el.innerText); // Sometimes 'TV Movie' is returned. In this case, get the second <li>.
 if (year.length !== 4) year = await page.$eval('ul.sc-b41e510f-3 > li:nth-child(2)', el => el.innerText);
-const plot = await page.$eval('span.sc-bf30a0e-2', el => el.innerText);
+const plot = await page.$eval('span.sc-9a16f31-2', el => el.innerText);
 const directors = await page.$$eval('div.sc-af040695-3 > ul > li:nth-child(1) > div > ul > li', elements => elements.map(el => el.innerText));
 const stars = await page.$$eval('div.sc-af040695-3 > ul > li:nth-child(3) > div > ul > li', elements => elements.map(el => el.innerText));
 const posterUrl = await page.$eval('img.ipc-image', el => el.src).then(url => `${url.split('_')[0]}jpg`);
