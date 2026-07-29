@@ -17,7 +17,7 @@ await page.goto(`https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0'
 await new Promise(resolve => setTimeout(resolve, 1400));
 const cast = await page.$('div.title-cast__grid > div.ipc-shoveler__grid');
 await cast.evaluate(div => {
-	const elements = div.querySelectorAll('div.sc-10bde568-5');
+	const elements = div.querySelectorAll('div[data-testid="title-cast-item"]');
 	for (let i = 10; i < elements.length; ++i) elements[i].remove(); // Retain only the first 10 <div> tags. Remove the others.
 }, cast);
 await cast.screenshot({ path: `${directory}/cast.png` });
@@ -25,7 +25,7 @@ await cast.dispose();
 const title = await page.$eval('span.hero__primary-text', el => el.innerText);
 let year = await page.$eval('ul.sc-b41e510f-3 > li', el => el.innerText); // Sometimes 'TV Movie' is returned. In this case, get the second <li>.
 if (year.length !== 4) year = await page.$eval('ul.sc-b41e510f-3 > li:nth-child(2)', el => el.innerText);
-const plot = await page.$eval('span.sc-9a16f31-2', el => el.innerText);
+const plot = await page.$eval('span[data-testid="plot-xl"]', el => el.innerText);
 const directors = await page.$$eval('div.sc-dcbc0103-3 > ul > li:nth-child(1) > div > ul > li', elements => elements.map(el => el.innerText));
 const stars = await page.$$eval('div.sc-dcbc0103-3 > ul > li:nth-child(3) > div > ul > li', elements => elements.map(el => el.innerText));
 const posterUrl = await page.$eval('img.ipc-image', el => el.src).then(url => `${url.split('_')[0]}jpg`);
