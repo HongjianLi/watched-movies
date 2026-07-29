@@ -2,8 +2,8 @@
 import fs from 'fs';
 import { Readable } from 'stream';
 import puppeteer from 'puppeteer-core';
-const date = '2026-07-17';
-const tt = 'tt14905854';
+const date = '2026-07-28';
+const tt = 'tt11655566';
 const directory = `assets/${date} ${tt}`;
 await fs.promises.mkdir(directory, { recursive: true });
 const browser = await puppeteer.launch({
