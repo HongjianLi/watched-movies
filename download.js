@@ -12,14 +12,18 @@ const browser = await puppeteer.launch({
 });
 await browser.setCookie({
 	"name": "aws-waf-token",
-	"value": "c904f0c0-1109-45cf-9686-adbf47054733:EQoAca0HELEpAQAA:JM7FgdjRCagsPXNuRs5RKoPbKiLWOk5hkjMbNUKmxVXSnoWqYqLx+ugcc5jhhOpLA/Gt/7n+d6ZV3JbglrWqPU5l68EYs23KMdi5snnDE99NjkHgkbjhmesAuEJXuBLjwlTbClBjj8ik6ixYcPpP8/d4ntqSlt9yUg9jaTvTbyi2W8i7RB1hz5Wf0arv0jR71zM2KPz3aedvPm8OpsPO2NcTJCWGkrTxq6lw92NH28Ck+9ur1mWEyhi8OU5gyXT+YNmB2HK22Ze5WSglce656D3dPCRuXP5+lJ1w4nj4/LrFrcG6T1dgyRVXkHExMTzDrPWrctlznDBml0tH",
+	"value": "de491aa9-2f53-4a14-b324-9da85fbeab26:EQoAmz4qiF0bAAAA:MB9eLVso7LKdIJhCFRRbdNfmV2PKdH5V7/OJTkyechFsAzhFrhGVMpKuuh8dBCmgY0r/fMXUPm2XhuTuWr9K1TI6nGUMLsWMGLEQbFrrhy5okn3t0fHG0WvpFAtl8oMsMDalFv7SFQMCXSOFbwKYQxW38dSJUejDXbVBlXyzgzqelPLpUCuvpySa4g2KQHom6JAZq2WmjxlU20Q9/ZxbNj5yPGFTWro7M9B4L7324UC4ECYCU1Lhh5ztkxSAslRAGFPvFKgCD2FeflD6cO9d6dzOVGpE5gXp8gLWf8rgqa+imLhkgAYbWvacoLdAejUHxQnnmvMl5eRMINroh9M=",
 	"domain": ".imdb.com",
 	"expires": 2147483646,
 });
 const page = await browser.newPage();
 await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36');
 await page.setExtraHTTPHeaders({'accept-language': 'en,en-US;q=0.9,zh-CN;q=0.8,zh-TW;q=0.7,zh;q=0.6'}); // This language header will affect the returned value of title and the returned url of poster image.
-await page.goto(`https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0' });
+await page.goto(`https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0', timeout: 60000 });
+if (await page.title() === 'Human Verification') {
+	console.log('Human Verification required. Launch the browser with headless: false and update the value of the aws-waf-token cookie.');
+	process.exit();
+}
 await new Promise(resolve => setTimeout(resolve, 1400));
 const cast = await page.$('div.title-cast__grid > div.ipc-shoveler__grid');
 await cast.evaluate(div => {
