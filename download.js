@@ -2,8 +2,8 @@
 import fs from 'fs';
 import { Readable } from 'stream';
 import puppeteer from 'puppeteer-core';
-const date = '2026-08-14';
-const tt = 'tt26342662';
+const date = '2026-08-20';
+const tt = 'tt9603208';
 const directory = `assets/${date} ${tt}`;
 await fs.promises.mkdir(directory, { recursive: true });
 const cookies = await fs.promises.readFile('cookies.json').then(JSON.parse);
