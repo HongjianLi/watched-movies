@@ -1,0 +1,8 @@
+[
+	{
+		"name": "aws-waf-token",
+		"value": "a9e62d2b-0843-4811-81df-b48ff5ba93a2:EQoAj9Yi9FfBAAAA:v4p6wf5GuR38n2+wdZ+0XXympavNYGVeBRBu0ApsaF0eSktfcKYnyR7XiKe8FxaLZvoLze1BSGslWH9T3aLW+6agG07GVcXnTrKx+rcnD7UN2kqRRAeW46rnuRqKiAsSrPoLw4aRMo1J+H93xAr3glwSfke79CY3+nqtHvapPQeVaB22uTnDR44E+jKusGaNHBl5hMiAJWOCr7YzgE4NwQRYUS4buZGklfNRD0Un2ROHACrCNr1tIXOmPjLJlvGB3xMcQwz+ujHWVn7icxl4QeKZ9DcDhCZj2wBCY42M884JytOpSkZAMehTbYWR7PtR5c021ZmnjCIOTeJ7Njg=",
+		"domain": ".imdb.com",
+		"expires": 2147483646
+	}
+]
