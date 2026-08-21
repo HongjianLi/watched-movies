@@ -14,7 +14,7 @@ const browser = await puppeteer.launch({
 });
 await browser.setCookie(...cookies);
 const page = await browser.newPage();
-await page.setUserAgent({userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36'});
+await page.setUserAgent({userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36'});
 await page.setExtraHTTPHeaders({'accept-language': 'en,en-US;q=0.9,zh-CN;q=0.8,zh-TW;q=0.7,zh;q=0.6'}); // This language header will affect the returned value of title and the returned url of poster image.
 await page.goto(`https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0', timeout: 60000 });
 if (await page.title() === 'Human Verification') {
