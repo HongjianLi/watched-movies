@@ -15,15 +15,66 @@ const browser = await puppeteer.launch({
 await browser.setCookie(...cookies);
 const page = await browser.newPage();
 await page.setUserAgent({userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36'});
-await page.setExtraHTTPHeaders({'accept-language': 'en,en-US;q=0.9,zh-CN;q=0.8,zh-TW;q=0.7,zh;q=0.6'}); // This language header will affect the returned value of title and the returned url of poster image.
+await page.setExtraHTTPHeaders({'accept-language': 'en,en-US;q=0.9,zh-CN;q=0.8,zh-TW;q=0.7,zh;q=0.6', referer: 'https://www.imdb.com/'}); // This language header will affect the returned value of title and the returned url of poster image.
 await page.goto(`https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0', timeout: 60000 });
 if (await page.title() === 'Human Verification') {
-	await page.waitForNavigation({ timeout: 60000 }); // Scan QR code to login. Default timeout is 30 seconds.
-	const browserCookies = await browser.cookies(); // Get the updated cookies from browser.
-	cookies.forEach(cookie => {
-		cookie.value = browserCookies.find(c => c.name === cookie.name && c.domain === cookie.domain).value; // Save the updated cookie value.
-	});
+	console.log('Solving Amazon WAF Captcha');
+	const gokuProps = await page.evaluate(() => window.gokuProps);
+	const scripts = await page.evaluate(() => Array.from(document.querySelectorAll('head > script')).filter(script => script.hasAttribute('src')).map(script => script.src));
+	const createTaskResponse = await fetch('https://api.2captcha.com/createTask', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			clientKey: 'ecad7fdc7d521384a5c260199582de72',//process.env.2CAPTCHA_API_KEY,
+			task: {
+				type: "AmazonTaskProxyless",
+				websiteURL: `https://www.imdb.com/title/${tt}/`,
+				challengeScript: scripts[0],
+				captchaScript: scripts[1],
+				websiteKey: gokuProps.key,
+				context: gokuProps.context,
+				iv: gokuProps.iv,
+			},
+		}),
+    });
+    console.assert(createTaskResponse.ok, 'createTaskResponse.ok');
+    const task = await createTaskResponse.json();
+	console.assert(task.errorId === 0, 'task.errorId === 0', task);
+	let solution;
+	while (true) {
+		const getTaskResultResponse = await fetch('https://api.2captcha.com/getTaskResult', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				clientKey: process.env.TWOCAPTCHA_API_KEY,
+				taskId: task.taskId,
+			}),
+		});
+		console.assert(getTaskResultResponse.ok, 'getTaskResultResponse.ok');
+		const result = await getTaskResultResponse.json();
+		if (result.errorId === 0 && result.status === 'processing') {
+			await new Promise(resolve => setTimeout(resolve, 5000)); // Wait at least 5 seconds and repeat the request.
+		} else {
+			if (result.errorId === 0 && result.status === 'ready') {
+				solution = result.solution;
+			} else {
+				console.error(result);
+			}
+			break;
+		}
+	}
+	if (!solution) {
+		await browser.close();
+		process.exit();
+	}
+	cookies.find(cookie => cookie.name === 'aws-waf-token' && cookie.domain === '.imdb.com').value = solution.existing_token;
 	await fs.promises.writeFile('cookies.json', JSON.stringify(cookies, null, '	'));
+	await browser.setCookie(...cookies);
+	await page.goto(`https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0', timeout: 60000 });
 }
 await new Promise(resolve => setTimeout(resolve, 1400));
 const cast = await page.$('div.title-cast__grid > div.ipc-shoveler__grid');
