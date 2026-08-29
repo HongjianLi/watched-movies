@@ -10,7 +10,6 @@ const cookies = await fs.promises.readFile('cookies.json').then(JSON.parse);
 const browser = await puppeteer.launch({
 	executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
 	defaultViewport: { width: 1024, height: 1400 },
-	headless: false,
 });
 await browser.setCookie(...cookies);
 const page = await browser.newPage();
@@ -18,7 +17,6 @@ await page.setUserAgent({userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit
 await page.setExtraHTTPHeaders({'accept-language': 'en,en-US;q=0.9,zh-CN;q=0.8,zh-TW;q=0.7,zh;q=0.6', referer: 'https://www.imdb.com/'}); // This language header will affect the returned value of title and the returned url of poster image.
 await page.goto(`https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0', timeout: 60000 });
 if (await page.title() === 'Human Verification') {
-	console.log('Solving Amazon WAF Captcha');
 	const gokuProps = await page.evaluate(() => window.gokuProps);
 	const scripts = await page.evaluate(() => Array.from(document.querySelectorAll('head > script')).filter(script => script.hasAttribute('src')).map(script => script.src));
 	const createTaskResponse = await fetch('https://api.2captcha.com/createTask', {
