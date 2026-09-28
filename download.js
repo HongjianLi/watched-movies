@@ -36,9 +36,9 @@ if (await page.title() === 'Human Verification') {
 				iv: gokuProps.iv,
 			},
 		}),
-    });
-    console.assert(createTaskResponse.ok, 'createTaskResponse.ok');
-    const task = await createTaskResponse.json();
+	});
+	console.assert(createTaskResponse.ok, 'createTaskResponse.ok');
+	const task = await createTaskResponse.json();
 	console.assert(task.errorId === 0, 'task.errorId === 0', task);
 	let solution;
 	while (true) {
