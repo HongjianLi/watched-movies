@@ -111,7 +111,7 @@ await Promise.all(files.map(async file => { // To change Promise.all to sequenti
 	for (let i = 0; i < 5; ++i) { // Retry fetch(), to ensure successful fetching.
 		try {
 			response = await fetch(url); // Fetching previewUrl or trailerUrl may occasionally throw ETIMEOUT or ENETUNREACH.
-			break;
+			if (response?.ok) break;
 		} catch {}
 	}
 	console.assert(response, file);
