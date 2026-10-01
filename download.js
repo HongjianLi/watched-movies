@@ -2,8 +2,8 @@
 import fs from 'fs';
 import { Readable } from 'stream';
 import puppeteer from 'puppeteer-core';
-const date = '2026-09-25';
-const tt = 'tt27543632';
+const date = '2026-10-01';
+const tt = 'tt27534307';
 const directory = `assets/${date} ${tt}`;
 await fs.promises.mkdir(directory, { recursive: true });
 const cookies = await fs.promises.readFile('cookies.json').then(JSON.parse);
@@ -15,8 +15,9 @@ await browser.setCookie(...cookies);
 const page = await browser.newPage();
 await page.setUserAgent({userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36'});
 await page.setExtraHTTPHeaders({'accept-language': 'en,en-US;q=0.9,zh-CN;q=0.8,zh-TW;q=0.7,zh;q=0.6', referer: 'https://www.imdb.com/'}); // This language header will affect the returned value of title and the returned url of poster image.
-await page.goto(`https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0', timeout: 60000 });
-if (await page.title() === 'Human Verification') {
+async function solveCaptcha(page, url, options) {
+	await page.goto(url, options);
+	if (await page.title() !== 'Human Verification') return;
 	const gokuProps = await page.evaluate(() => window.gokuProps);
 	const scripts = await page.evaluate(() => Array.from(document.querySelectorAll('head > script')).filter(script => script.hasAttribute('src')).map(script => script.src));
 	const createTaskResponse = await fetch('https://api.2captcha.com/createTask', {
@@ -28,7 +29,7 @@ if (await page.title() === 'Human Verification') {
 			clientKey: 'ecad7fdc7d521384a5c260199582de72',//process.env.2CAPTCHA_API_KEY,
 			task: {
 				type: "AmazonTaskProxyless",
-				websiteURL: `https://www.imdb.com/title/${tt}/`,
+				websiteURL: url,
 				challengeScript: scripts[0],
 				captchaScript: scripts[1],
 				websiteKey: gokuProps.key,
@@ -66,14 +67,15 @@ if (await page.title() === 'Human Verification') {
 		}
 	}
 	if (!solution) {
-		await browser.close();
+		await page.browser().close();
 		process.exit();
 	}
 	cookies.find(cookie => cookie.name === 'aws-waf-token' && cookie.domain === '.imdb.com').value = solution.existing_token;
 	await fs.promises.writeFile('cookies.json', JSON.stringify(cookies, null, '	'));
-	await browser.setCookie(...cookies);
-	await page.goto(`https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0', timeout: 60000 });
+	await page.browser().setCookie(...cookies);
+	await page.goto(url, options);
 }
+await solveCaptcha(page, `https://www.imdb.com/title/${tt}/`, { waitUntil: 'networkidle0', timeout: 60000 });
 await new Promise(resolve => setTimeout(resolve, 1400));
 const cast = await page.$('div.title-cast__grid > div.ipc-shoveler__grid');
 await cast.evaluate(div => {
@@ -93,7 +95,7 @@ const previewUrl = await page.$eval('div.jw-preview', el => el.style.cssText.spl
 let trailerUrl;
 const trailerPageUrl = await page.$eval('a.sc-9e7a6c35-0', el => el.href.split('?')[0]).catch(e => undefined);
 if (trailerPageUrl) {
-	await page.goto(trailerPageUrl, { waitUntil: 'networkidle2' });
+	await solveCaptcha(page, trailerPageUrl, { waitUntil: 'networkidle2' });
 	trailerUrl = await page.$eval('video', el => el.src);
 }
 await page.close();
