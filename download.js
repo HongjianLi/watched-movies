@@ -2,8 +2,8 @@
 import fs from 'fs';
 import { Readable } from 'stream';
 import puppeteer from 'puppeteer-core';
-const date = '2026-10-01';
-const tt = 'tt27534307';
+const date = '2026-11-13';
+const tt = 'tt4357198';
 const directory = `assets/${date} ${tt}`;
 await fs.promises.mkdir(directory, { recursive: true });
 const cookies = await fs.promises.readFile('cookies.json').then(JSON.parse);
@@ -17,7 +17,7 @@ await page.setUserAgent({userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit
 await page.setExtraHTTPHeaders({'accept-language': 'en,en-US;q=0.9,zh-CN;q=0.8,zh-TW;q=0.7,zh;q=0.6', referer: 'https://www.imdb.com/'}); // This language header will affect the returned value of title and the returned url of poster image.
 async function solveCaptcha(page, url, options) {
 	await page.goto(url, options);
-	if (await page.title() !== 'Human Verification') return;
+	if (await page.title() !== `Let's confirm you are human`) return;
 	const gokuProps = await page.evaluate(() => window.gokuProps);
 	const scripts = await page.evaluate(() => Array.from(document.querySelectorAll('head > script')).filter(script => script.hasAttribute('src')).map(script => script.src));
 	const createTaskResponse = await fetch('https://api.2captcha.com/createTask', {
